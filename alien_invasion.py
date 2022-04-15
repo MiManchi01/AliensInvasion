@@ -32,7 +32,7 @@ class AliensInvasion():
         将这个显示窗口赋给属性self.screen，
         让这个类中的所有方法都能够使用它。
         """
-        pygame.display.set_caption("AliensInvasion")
+        pygame.display.set_caption("Aliens_Invasion")
         
         # 设置背景色
         # self.bg_color = (230, 230, 230)
