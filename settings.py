@@ -4,7 +4,7 @@
 @IDE    : PyCharm
 @Author    : 北天
 @Date   : 2022/4/14  22:05
-@Desa   :
+@Desa   : 存储游戏设置
 '''
 
 class Settings():
