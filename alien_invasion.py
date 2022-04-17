@@ -12,6 +12,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 
 class AliensInvasion():
@@ -43,6 +44,8 @@ class AliensInvasion():
         
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+        self._create_fleet()
         
     def run_game(self):
         """开始游戏的主循环"""
@@ -66,6 +69,7 @@ class AliensInvasion():
             self.ship.update()
             # self.bullets.update()
             self._update_bullets()
+            self._update_aliens()
             
             # 删除超出屏幕范围的子弹
             # """
@@ -132,7 +136,7 @@ class AliensInvasion():
         if len(self.bullets) < self.settings.bullets_allowed:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
-            
+        
     def _update_bullets(self):
         """更新子弹位置并删除消失的子弹"""
         # 更新子弹的位置
@@ -142,6 +146,81 @@ class AliensInvasion():
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
+                
+    def _update_aliens(self):
+        """检查是否有外星人位于屏幕边缘，
+        更新外星人群中所有外星人的位置。
+        """
+        self._check_fleet_edges()
+        self.aliens.update()
+
+    def _create_fleet(self):
+        """创建外星人群"""
+        # 创建一个外星人并计算一行可容纳多少个外星人
+        # 外星人的间距为外星人的宽度
+        alien = Alien(self)
+        """
+        从外星人的rect属性中获取外星人宽度，
+        并将这个值存储到alien_width中，
+        以免反复访问属性rect。
+        """
+        alien_width, alien_height= alien.rect.size
+        # 计算可用于放置外星人的水平空间以及其中可容纳多少个外星人。
+        available_space_x = self.settings.screen_width - (2 * alien_width)
+        number_aliens_x = available_space_x // (2 * alien_width)
+        
+        # 计算屏幕可容纳多少行外星人
+        ship_height = self.ship.rect.height
+        available_space_y = (self.settings.screen_height -
+                             (3 * alien_height) - ship_height)
+        number_rows = available_space_y // (2 * alien_height)
+        
+        # 创建外星人群
+        for row_number in range(number_rows):
+            for alien_number in range(number_aliens_x):
+                self._create_alien(alien_number, row_number)
+        
+        # # 创建第一行外星人
+        # for alien_number in range(number_aliens_x):
+        #     # alien = Alien(self)
+        #     # alien.x = alien_width + 2 * alien_width * alien_number
+        #     # alien.rect.x = alien.x
+        #     # self.aliens.add(alien)
+        #     self._create_alien(alien_number)
+            
+    def _create_alien(self, alien_number, row_number):
+        """创建一个外星人并将其放在当前行"""
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        """
+        相邻外星人行的y坐标相差外星人高度的两倍，
+        因此将外星人高度乘以2，再乘以行号。
+        第一行的行号为0，因此第一行的垂直位置不变，
+        而其他行都沿屏幕依次向下放置
+        """
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+        self.aliens.add(alien)
+        
+    def _check_fleet_edges(self):
+        """有外星人到达边缘时采取相应的措施"""
+        for alien in self.aliens.sprites():
+            """
+            如果check_edges()返回True，
+            就表明相应的外星人位于屏幕边缘，
+            需要改变外星人群的方向，
+            因此调用_change_fleet_direction()并退出循环
+            """
+            if alien.check_edges():
+                self._change_fleet_direction()
+                break
+                
+    def _change_fleet_direction(self):
+        """将整群外星人下移。并改变它们的方向"""
+        for alien in self.aliens.sprites():
+            alien.rect.y += self.settings.fleet_drop_speed
+            self.settings.fleet_direction *= -1
 
     def _update_screen(self):
         """更新屏幕上的图像，并切换到新屏幕"""
@@ -149,7 +228,7 @@ class AliensInvasion():
         self.ship.blitme()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-    
+        self.aliens.draw(self.screen)
         pygame.display.flip()
 
         
