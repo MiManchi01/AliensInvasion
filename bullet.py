@@ -1,6 +1,6 @@
 # -*- Coding: UTF-8 -*-
 '''==================================
-@Project -> File    : Test.py -> bullet.py
+@Project -> File    : 练习.py -> bullet.py
 @IDE    : PyCharm
 @Author    : 北天
 @Date   : 2022/4/16  20:37

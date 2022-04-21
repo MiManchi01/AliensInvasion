@@ -1,6 +1,6 @@
 # -*- Coding: UTF-8 -*-
 '''==================================
-@Project -> File    : Test.py -> alien_invasion.py
+@Project -> File    : 练习.py -> alien_invasion.py
 @IDE    : PyCharm
 @Author    : 北天
 @Date   : 2022/4/14  21:18
